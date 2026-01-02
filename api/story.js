@@ -13,7 +13,31 @@ function setCors(req, res) {
 }
 
 function safeJson(text) {
-  try { return JSON.parse(text); } catch { return null; }
+  if (!text) return null;
+
+  // 1) ```json ... ``` 코드펜스 제거
+  let t = String(text).trim();
+  t = t.replace(/^```(?:json)?\s*/i, "").replace(/```$/i, "").trim();
+
+  // 2) 텍스트 중 JSON 객체만 뽑기: 첫 { 부터 마지막 } 까지
+  const first = t.indexOf("{");
+  const last = t.lastIndexOf("}");
+  if (first === -1 || last === -1 || last <= first) return null;
+
+  t = t.slice(first, last + 1).trim();
+
+  // 3) 파싱
+  try {
+    return JSON.parse(t);
+  } catch {
+    // 4) 혹시 전체가 문자열로 한 번 더 감싸진 경우(이중 이스케이프) 처리
+    // 예: "{ \"chapter\": ... }"
+    try {
+      const unquoted = JSON.parse(t); // 여기서 문자열로 풀리는 케이스
+      if (typeof unquoted === "string") return JSON.parse(unquoted);
+    } catch {}
+    return null;
+  }
 }
 
 function coerceScene(obj) {
@@ -167,4 +191,5 @@ JSON만 출력하라.
     return res.status(500).json({ error: "Server error", detail: String(err?.message ?? err) });
   }
 }
+
 
