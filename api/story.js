@@ -15,13 +15,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 function setCors(req, res) {
-  const origin = req.headers.origin;
-
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-
-  res.setHeader("Vary", "Origin");
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Access-Control-Max-Age", "86400");
@@ -93,10 +87,7 @@ function coerceScene(obj) {
 export default async function handler(req, res) {
   setCors(req, res);
 
-  // Preflight
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
+ if (req.method === "OPTIONS") return res.status(204).end();
 
   // Dev ping (optional): GET shows ok + hint
   if (req.method === "GET") {
@@ -259,3 +250,4 @@ ${log}
     return res.status(500).json({ error: "Server error", detail: String(err?.message ?? err) });
   }
 }
+
