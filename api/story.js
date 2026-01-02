@@ -87,7 +87,9 @@ function coerceScene(obj) {
 export default async function handler(req, res) {
   setCors(req, res);
 
- if (req.method === "OPTIONS") return res.status(204).end();
+if (req.method === "OPTIONS") {
+  return res.status(200).json({ ok: true });
+}
 
   // Dev ping (optional): GET shows ok + hint
   if (req.method === "GET") {
@@ -250,4 +252,5 @@ ${log}
     return res.status(500).json({ error: "Server error", detail: String(err?.message ?? err) });
   }
 }
+
 
